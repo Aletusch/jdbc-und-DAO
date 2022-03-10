@@ -39,6 +39,10 @@ public class Cli {
                     showCoursDetails();
                     System.out.println("Kursdetailsanzeigen");
                     break;
+                case "4":
+                    updateCourseDetails();
+                    System.out.println("Kurs Details ändern");
+                    break;
                 case "x":
                     System.out.println("Auf Wiedersehen");
                     break;
@@ -50,19 +54,74 @@ public class Cli {
         scan.close();
     }
 
+    private void updateCourseDetails() {
+        System.out.println("Für welchen Kurs-ID möchten Sie die Kursdetails ändern?");
+        Long courseId = Long.parseLong(scan.nextLine());
+        try {
+            Optional<Course> courseOptional = repository.getById(courseId);
+            if (courseOptional.isEmpty()) {
+                System.out.println("Kurs mit der gegebenen ID nicht in der Datenbank!");
+            } else {
+                Course course = courseOptional.get();
+                System.out.println("Änderungen für folgenden Kurs: ");
+
+                String name, description, hours, dateFrom, dateTo, courseType;
+
+                System.out.println("Bitte neue Kursdaten angeben (Enter, falls keine Änderung gewünscht ist): ");
+                System.out.println("Name: ");
+                name = scan.nextLine();
+                System.out.println("Beschreibung: ");
+                description = scan.nextLine();
+                System.out.println("Stundenanzahl: ");
+                hours = scan.nextLine();
+                System.out.printf("Startdatum (YYYY-MM-DD): ");
+                dateFrom = scan.nextLine();
+                System.out.println("Enddatum (YYYY-MM-DD): ");
+                dateTo = scan.nextLine();
+                System.out.println("Kurstyp (ZA/BF/FF/OE): ");
+                courseType = scan.nextLine();
+
+                Optional<Course> optionalCourseUpdated = repository.update(
+                        new Course(
+                                course.getId(),
+                                name.equals("") ? course.getName() : name,
+                                description.equals("") ? course.getDescription() : description,
+                                hours.equals("") ? course.getHours() : Integer.parseInt(hours),
+                                dateFrom.equals("") ? course.getBeginDate() : Date.valueOf(dateFrom),
+                                dateTo.equals("") ? course.getEndDate() : Date.valueOf(dateTo),
+                                courseType.equals("") ? course.getCourseType() : CourseType.valueOf(courseType)
+                        )
+                );
+                optionalCourseUpdated.ifPresentOrElse(
+                        (c) -> System.out.println("Kurs aktualisiert: " + c),
+                        () -> System.out.println("Kurs konnte nicht aktualisiert werden!")
+                );
+
+            }
+        } catch (IllegalArgumentException illegalArgumentException) {
+            System.out.println("Eingabefehler: " + illegalArgumentException.getMessage());
+        } catch (InvalidValueException invalidValueExcpetion) {
+            System.out.println("Kursdaten nicht korrekt angegeben: " + invalidValueExcpetion.getMessage());
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler beim Updaten: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler beim Updaten: " + exception.getMessage());
+        }
+    }
+
     private void addcourse() {
         String name, description;
         int hours;
-        Date dateFrom,dateTo;
+        Date dateFrom, dateTo;
         CourseType courseType;
-        try{
+        try {
             System.out.println("Bitte alle Kursdaten angeben:");
             System.out.println("Name: ");
             name = scan.nextLine();
-            if(name.equals("")) throw new IllegalArgumentException("Eingabe darf nicht leer sein!");
+            if (name.equals("")) throw new IllegalArgumentException("Eingabe darf nicht leer sein!");
             System.out.println("Beschreibung: ");
             description = scan.nextLine();
-            if(description.equals("")) throw new IllegalArgumentException("Eingabe darf nicht leer sein!");
+            if (description.equals("")) throw new IllegalArgumentException("Eingabe darf nicht leer sein!");
             System.out.println("Stundenanzahl: ");
             hours = Integer.parseInt(scan.nextLine());
             System.out.println("Startdatum (YYYY-MM-DD): ");
@@ -80,22 +139,20 @@ public class Cli {
                             courseType
                     ));
 
-            if(optionalCourse.isPresent())
-            {
+            if (optionalCourse.isPresent()) {
                 System.out.println("Kurs angelegt: " + optionalCourse.get());
-            } else
-            {
+            } else {
                 System.out.println("Kurs konnte nicht angelegt werden!");
             }
 
-        }catch(IllegalArgumentException illegalArgumentException){
-            System.out.println("Eingabefehler: "+ illegalArgumentException.getMessage());
-        }catch(InvalidValueException invalidValueException){
-            System.out.println("Kursdaten nicht korrekt angegeben: "+ invalidValueException.getMessage());
-        }catch (DatabaseException databaseException){
-            System.out.println("Datenbankfehler beim einfügen: "+ databaseException.getMessage());
-        }catch (Exception exception){
-            System.out.println("Unbekannterfehler beim einfügen "+exception.getMessage());
+        } catch (IllegalArgumentException illegalArgumentException) {
+            System.out.println("Eingabefehler: " + illegalArgumentException.getMessage());
+        } catch (InvalidValueException invalidValueException) {
+            System.out.println("Kursdaten nicht korrekt angegeben: " + invalidValueException.getMessage());
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler beim einfügen: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannterfehler beim einfügen " + exception.getMessage());
         }
 
 
@@ -139,7 +196,8 @@ public class Cli {
 
     private void showMenue() {
         System.out.println("--------------Kursmanagement--------------");
-        System.out.println("(1) Kurs einegeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen\t");
+        System.out.println("(1) Kurs einegeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen\n");
+        System.out.println("(4) Kurs Deatailsändern \t (-) ------------------- \t (-) --------------------  ");
         System.out.println("(x) Ende");
 
     }
@@ -148,3 +206,4 @@ public class Cli {
         System.out.println("Bitte nur die Zahlen der Menueauswahl eingeben!");
     }
 }
+    }
