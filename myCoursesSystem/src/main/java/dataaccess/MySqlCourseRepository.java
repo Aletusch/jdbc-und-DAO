@@ -11,13 +11,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
     private Connection connection;
 
     public MySqlCourseRepository() throws SQLException, ClassNotFoundException {
-//KÖNNTE DER PARAMETER FEHLEN!!!!!!!!!!!!!!!! Der lautet Connection connection
-//KÖNNTE DER PARAMETER FEHLEN!!!!!!!!!!!!!!!! Der lautet Connection connection
-//KÖNNTE DER PARAMETER FEHLEN!!!!!!!!!!!!!!!! Der lautet Connection connection
-//KÖNNTE DER PARAMETER FEHLEN!!!!!!!!!!!!!!!! Der lautet Connection connection
-//KÖNNTE DER PARAMETER FEHLEN!!!!!!!!!!!!!!!! Der lautet Connection connection
-
-        this.connection = MysqlDatabaseConnection.getConnection("jdbc:mysql:// localhost:3306/kurssystem", "root", "");
+        this.connection = MysqlDatabaseConnection.getConnection("jdbc:mysql://localhost:3306/kurssystem", "root", "");
     }
 
 
@@ -45,7 +39,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
                         new Course(
                                 resultset.getLong("id"),
                                 resultset.getString("name"),
-                                resultset.getString("describtion"),
+                                resultset.getString("description"),
                                 resultset.getInt("hours"),
                                 resultset.getDate("begindate"),
                                 resultset.getDate("enddate"),
@@ -53,13 +47,13 @@ public class MySqlCourseRepository implements MyCourseRepository {
 
                         )
                 );
-                return courseList;
+
             }
+            return courseList;
         } catch (SQLException e) {
             throw new DatabaseExcepton("Courselist error ocurred");
 
         }
-        return null;
     }
 
     @Override
