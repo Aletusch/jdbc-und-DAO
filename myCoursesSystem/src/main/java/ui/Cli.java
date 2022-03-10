@@ -206,4 +206,3 @@ public class Cli {
         System.out.println("Bitte nur die Zahlen der Menueauswahl eingeben!");
     }
 }
-    }

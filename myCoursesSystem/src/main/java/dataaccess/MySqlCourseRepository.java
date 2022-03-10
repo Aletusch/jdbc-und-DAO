@@ -124,7 +124,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
     public Optional<Course> update(Course entity) {
         Assert.notNull(entity);
 
-        String sql = "UPDATE `courses` SET `name` = ?, `description` = ?, `hours` = ?, `begindate` = ?, `enddate` = ?, `course type` = ? WHERE `courses`.`id` = ?";
+        String sql = "UPDATE `courses` SET `name` = ?, `description` = ?, `hours` = ?, `begindate` = ?, `enddate` = ?, `coursetype` = ? WHERE `courses`.`id` = ?";
         if (countCoursesinDBWithID(entity.getId()) == 0) {
             return Optional.empty();
         } else {
