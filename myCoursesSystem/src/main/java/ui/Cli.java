@@ -1,12 +1,12 @@
 package ui;
 
-import dataaccess.DatabaseExcepton;
+import dataaccess.DatabaseException;
 import dataaccess.MyCourseRepository;
 import dataaccess.MySqlCourseRepository;
 import domain.Course;
 
-import java.nio.file.LinkPermission;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Cli {
@@ -32,6 +32,10 @@ public class Cli {
                     showAllCourses();
                     System.out.println("Alle Kurse anzeigen");
                     break;
+                case "3":
+                    showCoursDetails();
+                    System.out.println("Kursdetailsanzeigen");
+                    break;
                 case "x":
                     System.out.println("Auf Wiedersehen");
                     break;
@@ -41,6 +45,24 @@ public class Cli {
             }
         }
         scan.close();
+    }
+
+    private void showCoursDetails() {
+        System.out.println("Für welchen Kurs möchten Sie die Kursdetails anzeigen?");
+        Long courseId = Long.parseLong(scan.nextLine());
+        try {
+            Optional<Course> courseOptional = repository.getById(courseId);
+            if (courseOptional.isPresent()) {
+                System.out.println(courseOptional.get());
+            } else {
+                System.out.println("Kurs mit der ID " + courseId + " nicht gefunden!");
+            }
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler bei Kurs-Detailanzeige: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler bei Kurs-Detailanzeige: " + exception.getMessage());
+        }
+
     }
 
     private void showAllCourses() {
@@ -54,16 +76,16 @@ public class Cli {
             } else {
                 System.out.println("Kursliste leer!");
             }
-        }catch(DatabaseExcepton databaseExcepton){
-            System.out.println("Datenbankfehler bei Anzeige aller Kurse: "+ databaseExcepton.getMessage());
-        }catch (Exception exception){
-            System.out.println("Unbekannter Fehler beim anzeigen der Kurse: "+ exception.getMessage());
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler bei Anzeige aller Kurse: " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler beim anzeigen der Kurse: " + exception.getMessage());
         }
     }
 
     private void showMenue() {
         System.out.println("--------------Kursmanagement--------------");
-        System.out.println("(1) Kurs einegeben \t (2) Alle Kurse anzeigen \t");
+        System.out.println("(1) Kurs einegeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen\t");
         System.out.println("(x) Ende");
 
     }

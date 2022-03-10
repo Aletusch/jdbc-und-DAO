@@ -2,6 +2,7 @@ package dataaccess;
 
 import domain.Course;
 import domain.CourseType;
+import util.Assert;
 
 import java.sql.*;
 import java.sql.Date;
@@ -22,7 +23,46 @@ public class MySqlCourseRepository implements MyCourseRepository {
 
     @Override
     public Optional<Course> getById(Long id) {
-        return Optional.empty();
+        Assert.notNull(id);
+        if (countCoursesinDBWithID(id) == 0) {
+            return Optional.empty();
+        } else {
+            try {
+                String sql = "SELECT * FROM `courses` WHERE `id` = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setLong(1, id);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                resultSet.next();
+                Course course = new Course(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("description"),
+                        resultSet.getInt("hours"),
+                        resultSet.getDate("beginDate"),
+                        resultSet.getDate("endDate"),
+                        CourseType.valueOf(resultSet.getString("coursetype"))
+                );
+                return Optional.of(course);
+            } catch (SQLException sqlException) {
+                throw new DatabaseException(sqlException.getMessage());
+            }
+
+        }
+    }
+
+    private int countCoursesinDBWithID(Long id) {
+        try {
+            String sql = "SELECT COUNT(*) FROM `courses` WHERE `id`=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int courseCount = resultSet.getInt(1);
+            return courseCount;
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+
     }
 
     @Override
@@ -51,7 +91,7 @@ public class MySqlCourseRepository implements MyCourseRepository {
             }
             return courseList;
         } catch (SQLException e) {
-            throw new DatabaseExcepton("Courselist error ocurred");
+            throw new DatabaseException("Courselist error ocurred");
 
         }
     }
