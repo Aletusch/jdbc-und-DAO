@@ -2,7 +2,6 @@ package dataaccess;
 
 import domain.Course;
 import domain.CourseType;
-import jdk.jshell.spi.SPIResolutionException;
 import util.Assert;
 
 import java.sql.*;
@@ -56,16 +55,16 @@ public class MySqlCourseRepository implements MyCourseRepository {
                 String sql = "SELECT * FROM `courses` WHERE `id` = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setLong(1, id);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                resultSet.next();
+                ResultSet resultset = preparedStatement.executeQuery();
+                resultset.next();
                 Course course = new Course(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("description"),
-                        resultSet.getInt("hours"),
-                        resultSet.getDate("beginDate"),
-                        resultSet.getDate("endDate"),
-                        CourseType.valueOf(resultSet.getString("coursetype"))
+                        resultset.getLong("id"),
+                        resultset.getString("name"),
+                        resultset.getString("description"),
+                        resultset.getInt("hours"),
+                        resultset.getDate("beginDate"),
+                        resultset.getDate("endDate"),
+                        CourseType.valueOf(resultset.getString("coursetype"))
                 );
                 return Optional.of(course);
             } catch (SQLException sqlException) {
@@ -213,6 +212,28 @@ public class MySqlCourseRepository implements MyCourseRepository {
 
     @Override
     public List<Course> findAllrunningCourses() {
-        return null;
+        try
+        {
+            String sql = "SELECT * FROM `courses` WHERE NOW()<`enddate`";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultset = preparedStatement.executeQuery();
+            ArrayList<Course> courseList = new ArrayList<>();
+            while(resultset.next())
+            {
+                courseList.add(new Course(
+                        resultset.getLong("id"),
+                        resultset.getString("name"),
+                        resultset.getString("description"),
+                        resultset.getInt("hours"),
+                        resultset.getDate("beginDate"),
+                        resultset.getDate("endDate"),
+                        CourseType.valueOf(resultset.getString("coursetype"))
+                ));
+            }
+            return courseList;
+        } catch (SQLException sqlException)
+        {
+            throw new DatabaseException(sqlException.getMessage());
+        }
     }
 }

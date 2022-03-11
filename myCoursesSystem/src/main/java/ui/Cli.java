@@ -7,7 +7,10 @@ import domain.Course;
 import domain.CourseType;
 import domain.InvalidValueException;
 
+import javax.xml.crypto.Data;
+import java.awt.image.AreaAveragingScaleFilter;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -49,6 +52,9 @@ public class Cli {
                 case "6":
                     courseSearch();
                     break;
+                case "7":
+                    runningCourses();
+                    break;
                 case "x":
                     System.out.println("Auf Wiedersehen");
                     break;
@@ -60,26 +66,43 @@ public class Cli {
         scan.close();
     }
 
-    private void courseSearch() {
-        System.out.println("Geben sie einen Suchbegriff an: ");
-        String searchstring= scan.nextLine();
-        List<Course>courseList;
+    private void runningCourses() {
+        System.out.println("Aktuell laufende Kurse: ");
+        List<Course> list;
         try {
-            courseList=repository.findAllCoursesByNameOrDescription(searchstring);
-            for (Course course:courseList){
+            list = repository.findAllrunningCourses();
+            for (Course course : list) {
                 System.out.println(course);
             }
-        }catch (DatabaseException databaseException){
-            System.out.println("Datenbankfehler bei der Kurssuche "+databaseException.getMessage());
-        }catch (Exception exception){
-            System.out.println("Unbekannter Fehler bei der Kurssuche "+ exception.getMessage());
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler bei der Anzeige für laufende Kurse " + databaseException.getMessage());
+
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler bei der Anzeige für laufende Kurse " + exception.getMessage());
+
+        }
+    }
+
+    private void courseSearch() {
+        System.out.println("Geben sie einen Suchbegriff an: ");
+        String searchstring = scan.nextLine();
+        List<Course> courseList;
+        try {
+            courseList = repository.findAllCoursesByNameOrDescription(searchstring);
+            for (Course course : courseList) {
+                System.out.println(course);
+            }
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler bei der Kurssuche " + databaseException.getMessage());
+        } catch (Exception exception) {
+            System.out.println("Unbekannter Fehler bei der Kurssuche " + exception.getMessage());
         }
     }
 
     private void deleteCourse() {
         System.out.println("Welchen kurs möchten sie Löschen? Bitte ID eingeben: ");
         Long courseIdToDelete = Long.parseLong(scan.nextLine());
-        System.out.println("Kurs mit der ID "+courseIdToDelete+" gelöscht!");
+        System.out.println("Kurs mit der ID " + courseIdToDelete + " gelöscht!");
 
         try {
             repository.deleteById(courseIdToDelete);
@@ -234,7 +257,7 @@ public class Cli {
         System.out.println("--------------Kursmanagement--------------");
         System.out.println("(1) Kurs einegeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen\n");
         System.out.println("(4) Kurs Detailsändern \t (5) Kurs löschen \t (6) Kursuche  ");
-        System.out.println("(x) Ende");
+        System.out.println("(7) Laufende Kurse \t(x) Ende");
 
     }
 
