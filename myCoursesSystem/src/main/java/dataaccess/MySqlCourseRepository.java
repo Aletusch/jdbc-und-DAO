@@ -109,15 +109,12 @@ public class MySqlCourseRepository implements MyCourseRepository {
                                 resultset.getDate("begindate"),
                                 resultset.getDate("enddate"),
                                 CourseType.valueOf(resultset.getString("coursetype"))
-
                         )
                 );
-
             }
             return courseList;
         } catch (SQLException e) {
             throw new DatabaseException("Courselist error ocurred");
-
         }
     }
 
@@ -183,8 +180,30 @@ public class MySqlCourseRepository implements MyCourseRepository {
     }
 
     @Override
-    public List<Course> findAllCoursesByNameOrDescribtion(String searchtext) {
-        return null;
+    public List<Course> findAllCoursesByNameOrDescription(String searchtext) {
+        try {
+            String sql = "SELECT *FROM `courses`WHERE LOWER(`description`)LIKE LOWER(?) OR LOWER(`name`)LIKE LOWER(?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, "%"+searchtext);
+            preparedStatement.setString(2, "%"+searchtext);
+            ResultSet resultset= preparedStatement.executeQuery();
+            ArrayList<Course>courseList=new ArrayList<>();
+            while (resultset.next()){
+                courseList.add(new Course(
+                        resultset.getLong("id"),
+                        resultset.getString("name"),
+                        resultset.getString("description"),
+                        resultset.getInt("hours"),
+                        resultset.getDate("begindate"),
+                        resultset.getDate("enddate"),
+                        CourseType.valueOf(resultset.getString("coursetype"))
+
+                ));
+            }
+            return courseList;
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
     }
 
     @Override
