@@ -36,12 +36,15 @@ public class Cli {
                     System.out.println("Alle Kurse anzeigen");
                     break;
                 case "3":
-                    showCoursDetails();
+                    showCourseDetails();
                     System.out.println("Kursdetailsanzeigen");
                     break;
                 case "4":
                     updateCourseDetails();
                     System.out.println("Kurs Details ändern");
+                    break;
+                case "5":
+                    deleteCourse();
                     break;
                 case "x":
                     System.out.println("Auf Wiedersehen");
@@ -52,6 +55,20 @@ public class Cli {
             }
         }
         scan.close();
+    }
+
+    private void deleteCourse() {
+        System.out.println("Welchen kurs möchten sie Löschen? Bitte ID eingeben: ");
+        Long courseIdToDelete = Long.parseLong(scan.nextLine());
+        System.out.println("Kurs mit der ID "+courseIdToDelete+" gelöscht!");
+
+        try {
+            repository.deleteById(courseIdToDelete);
+        } catch (DatabaseException databaseException) {
+            System.out.println("Datenbankfehler beim Löschen: " + databaseException.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unbekannter Fehler beim Löschen: " + e.getMessage());
+        }
     }
 
     private void updateCourseDetails() {
@@ -152,13 +169,13 @@ public class Cli {
         } catch (DatabaseException databaseException) {
             System.out.println("Datenbankfehler beim einfügen: " + databaseException.getMessage());
         } catch (Exception exception) {
-            System.out.println("Unbekannterfehler beim einfügen " + exception.getMessage());
+            System.out.println("Unbekannter Fehler beim einfügen " + exception.getMessage());
         }
 
 
     }
 
-    private void showCoursDetails() {
+    private void showCourseDetails() {
         System.out.println("Für welchen Kurs möchten Sie die Kursdetails anzeigen?");
         Long courseId = Long.parseLong(scan.nextLine());
         try {
@@ -197,7 +214,7 @@ public class Cli {
     private void showMenue() {
         System.out.println("--------------Kursmanagement--------------");
         System.out.println("(1) Kurs einegeben \t (2) Alle Kurse anzeigen \t (3) Kursdetails anzeigen\n");
-        System.out.println("(4) Kurs Deatailsändern \t (-) ------------------- \t (-) --------------------  ");
+        System.out.println("(4) Kurs Deatailsändern \t (5) Kurs löschen \t (-) --------------------  ");
         System.out.println("(x) Ende");
 
     }

@@ -2,6 +2,7 @@ package dataaccess;
 
 import domain.Course;
 import domain.CourseType;
+import jdk.jshell.spi.SPIResolutionException;
 import util.Assert;
 
 import java.sql.*;
@@ -153,7 +154,17 @@ public class MySqlCourseRepository implements MyCourseRepository {
 
     @Override
     public void deleteById(Long id) {
-
+        Assert.notNull(id);
+        String sql = "DELETE FROM `courses` WHERE `courses`.`id` = ?";
+        try {
+            if (countCoursesinDBWithID(id) == 1) {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setLong(1, id);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
     }
 
     @Override
